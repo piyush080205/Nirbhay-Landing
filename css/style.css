@@ -220,7 +220,6 @@ main > section { padding: 7.5rem 0; }
   background: rgba(8,11,20,0.55);
   border-color: rgba(247,248,250,0.12);
 }
-.nav.nav-on-dark .nav-mark-glyph,
 .nav.nav-on-dark .nav-mark-title { color: var(--dark-text); }
 .nav.nav-on-dark .nav-mark-sub { color: var(--dark-text-soft); }
 .nav.nav-on-dark .nav-links a { color: rgba(247,248,250,0.75); }
@@ -233,7 +232,8 @@ main > section { padding: 7.5rem 0; }
   gap: 0.55rem;
 }
 
-.nav-mark-glyph { color: var(--indigo); display: flex; }
+.nav-mark-glyph { display: flex; align-items: center; height: 30px; }
+.nav-mark-glyph img { height: 100%; width: auto; display: block; }
 
 .nav-mark-text { display: flex; flex-direction: column; line-height: 1.1; }
 .nav-mark-title {
@@ -1136,7 +1136,7 @@ main > section { padding: 7.5rem 0; }
 ===================================================================== */
 .footer { padding: 4.5rem 0 1.5rem; }
 .footer-inner { display: grid; grid-template-columns: 1.4fr 1fr auto; gap: 2rem; padding-bottom: 3rem; border-bottom: 1px solid var(--dark-line-soft); }
-.footer-mark .nav-mark-glyph { color: #8FB2FF; }
+.footer-mark .nav-mark-glyph { height: 26px; }
 .footer-mark .nav-mark-title { color: var(--dark-text); }
 .footer-mark .nav-mark-sub { color: var(--dark-text-soft); }
 .footer-tagline { margin-top: 1rem; font-size: 0.8rem; font-weight: 700; letter-spacing: 0.1em; color: var(--dark-text-soft); }
