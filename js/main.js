@@ -59,6 +59,7 @@
   /* ---------- mobile nav ---------- */
   const burger = document.getElementById('navBurger');
   const mobileNav = document.getElementById('mobileNav');
+  const mobileNavClose = document.getElementById('mobileNavClose');
 
   function closeMobileNav() {
     burger.setAttribute('aria-expanded', 'false');
@@ -79,6 +80,7 @@
     }
   });
 
+  mobileNavClose.addEventListener('click', closeMobileNav);
   mobileNav.querySelectorAll('a').forEach((a) => a.addEventListener('click', closeMobileNav));
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') closeMobileNav();

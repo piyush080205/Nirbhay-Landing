@@ -293,6 +293,24 @@ main > section { padding: 7.5rem 0; }
   transition: opacity 0.3s var(--ease-soft), transform 0.3s var(--ease-soft), visibility 0.3s;
 }
 .mobile-nav.open { opacity: 1; visibility: visible; transform: translateY(0); }
+
+.mobile-nav-close {
+  position: absolute;
+  top: 1.25rem;
+  right: 1.25rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--dark-text);
+  background: rgba(247,248,250,0.08);
+  border: 1px solid rgba(247,248,250,0.22);
+  transition: background 0.2s var(--ease-soft), border-color 0.2s var(--ease-soft), transform 0.2s var(--ease-soft);
+}
+.mobile-nav-close:hover { background: rgba(247,248,250,0.16); border-color: rgba(247,248,250,0.4); transform: scale(1.05); }
+
 .mobile-nav nav { display: flex; flex-direction: column; align-items: center; gap: 1.8rem; }
 .mobile-nav a {
   font-family: var(--font-display);
