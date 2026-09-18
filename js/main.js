@@ -98,7 +98,7 @@
         const suffix = el.dataset.suffix || '';
         const prefix = el.dataset.prefix || '';
         if (window.JAGRITI.reducedMotion) {
-          el.textContent = prefix + target.toLocaleString('en-IN') + suffix;
+          el.textContent = prefix + target.toLocaleString('en-US') + suffix;
           return;
         }
         const duration = 1400;
@@ -106,7 +106,7 @@
         function tick(now) {
           const p = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = prefix + Math.round(eased * target).toLocaleString('en-IN') + suffix;
+          el.textContent = prefix + Math.round(eased * target).toLocaleString('en-US') + suffix;
           if (p < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
