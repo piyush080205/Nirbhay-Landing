@@ -1,1667 +1,708 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Nirbhay — Autonomous Women's Safety</title>
-  <meta name="description" content="Nirbhay detects struggle patterns using AI and alerts your guardians automatically. No manual SOS button required." />
-
-  <!-- Google Fonts: Fraunces (display) + DM Sans (body) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,wght@0,300;0,700;0,900;1,300;1,700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
-
-  <!-- FontAwesome 6 Free -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
-
-  <!-- Google Analytics placeholder -->
-  <!--
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-  -->
-
-  <style>
-    /* =====================
-       DESIGN TOKENS
-    ===================== */
-    :root {
-      --plum:        #2D0A4E;
-      --plum-mid:    #4A1D6D;
-      --plum-light:  #6B2FA0;
-      --lavender:    #C4B5FD;
-      --lavender-dim:#9B8DCB;
-      --cream:       #FAF8FF;
-      --white:       #FFFFFF;
-      --ink:         #1F2937;
-      --ink-soft:    #4B5563;
-      --ink-mute:    #9CA3AF;
-      --gold:        #F5C842;
-      --card-bg:     rgba(255,255,255,0.06);
-      --radius:      1rem;
-      --radius-sm:   0.5rem;
-      --radius-pill: 999px;
-      --shadow:      0 4px 32px rgba(74,29,109,0.15);
-      --shadow-lg:   0 16px 64px rgba(74,29,109,0.25);
-      --transition:  0.25s cubic-bezier(0.4,0,0.2,1);
-    }
-
-    /* =====================
-       RESET & BASE
-    ===================== */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
-    html { scroll-behavior: smooth; font-size: 16px; }
-
-    body {
-      font-family: 'DM Sans', sans-serif;
-      color: var(--ink);
-      background: var(--cream);
-      overflow-x: hidden;
-    }
-
-    img { max-width: 100%; display: block; }
-    a { color: inherit; text-decoration: none; }
-
-    /* Grain texture overlay on dark sections */
-    .grain::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    /* =====================
-       NAV
-    ===================== */
-    nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-      padding: 1.1rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: rgba(45, 10, 78, 0.85);
-      backdrop-filter: blur(14px);
-      -webkit-backdrop-filter: blur(14px);
-      border-bottom: 1px solid rgba(196,181,253,0.1);
-      transition: background var(--transition);
-    }
-
-    .nav-logo {
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1.4rem;
-      color: var(--lavender);
-      letter-spacing: -0.02em;
-      display: flex;
-      align-items: center;
-      gap: 0.4rem;
-    }
-
-    .nav-logo .shield-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--gold);
-      display: inline-block;
-    }
-
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 2rem;
-      list-style: none;
-    }
-
-    .nav-links a {
-      color: rgba(196,181,253,0.75);
-      font-size: 0.875rem;
-      font-weight: 500;
-      transition: color var(--transition);
-    }
-
-    .nav-links a:hover { color: var(--lavender); }
-
-    .nav-cta {
-      background: var(--lavender);
-      color: var(--plum) !important;
-      padding: 0.5rem 1.2rem;
-      border-radius: var(--radius-pill);
-      font-weight: 600 !important;
-      font-size: 0.875rem !important;
-      transition: background var(--transition), transform var(--transition) !important;
-    }
-
-    .nav-cta:hover {
-      background: var(--white) !important;
-      transform: translateY(-1px);
-    }
-
-    .nav-hamburger {
-      display: none;
-      flex-direction: column;
-      gap: 5px;
-      cursor: pointer;
-      padding: 4px;
-    }
-
-    .nav-hamburger span {
-      display: block;
-      width: 22px;
-      height: 2px;
-      background: var(--lavender);
-      border-radius: 2px;
-      transition: transform var(--transition), opacity var(--transition);
-    }
-
-    /* =====================
-       HERO
-    ===================== */
-    #hero {
-      position: relative;
-      min-height: 100vh;
-      background: linear-gradient(135deg, var(--plum) 0%, #1A0635 50%, #0D0020 100%);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 8rem 1.5rem 5rem;
-      overflow: hidden;
-    }
-
-    /* Radial glow */
-    #hero::before {
-      content: '';
-      position: absolute;
-      top: -20%;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 900px;
-      height: 900px;
-      background: radial-gradient(circle, rgba(107,47,160,0.4) 0%, transparent 65%);
-      pointer-events: none;
-    }
-
-    /* Diagonal accent line */
-    #hero::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, transparent, var(--lavender), transparent);
-    }
-
-    /* Floating orbs */
-    .hero-orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(70px);
-      pointer-events: none;
-      animation: orb-float 8s ease-in-out infinite;
-    }
-
-    .hero-orb-1 {
-      width: 400px;
-      height: 400px;
-      background: rgba(196,181,253,0.07);
-      top: 10%;
-      right: -100px;
-      animation-delay: 0s;
-    }
-
-    .hero-orb-2 {
-      width: 300px;
-      height: 300px;
-      background: rgba(245,200,66,0.06);
-      bottom: 15%;
-      left: -80px;
-      animation-delay: 3s;
-    }
-
-    @keyframes orb-float {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(-30px); }
-    }
-
-    .hero-inner {
-      position: relative;
-      z-index: 2;
-      max-width: 780px;
-    }
-
-    .hero-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(196,181,253,0.12);
-      border: 1px solid rgba(196,181,253,0.25);
-      border-radius: var(--radius-pill);
-      padding: 0.35rem 1rem;
-      font-size: 0.8rem;
-      font-weight: 500;
-      color: var(--lavender);
-      margin-bottom: 2rem;
-      letter-spacing: 0.02em;
-      animation: fade-up 0.6s ease both;
-    }
-
-    .hero-badge .dot {
-      width: 6px;
-      height: 6px;
-      background: var(--gold);
-      border-radius: 50%;
-      animation: pulse 1.8s ease infinite;
-    }
-
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.5; transform: scale(1.3); }
-    }
-
-    h1.hero-headline {
-      font-family: 'Fraunces', serif;
-      font-weight: 900;
-      font-size: clamp(2.8rem, 7vw, 5.5rem);
-      line-height: 1.05;
-      color: var(--white);
-      letter-spacing: -0.03em;
-      margin-bottom: 1.5rem;
-      animation: fade-up 0.7s 0.1s ease both;
-    }
-
-    h1.hero-headline em {
-      font-style: italic;
-      font-weight: 300;
-      color: var(--lavender);
-    }
-
-    .hero-sub {
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: rgba(196,181,253,0.75);
-      line-height: 1.7;
-      max-width: 580px;
-      margin: 0 auto 2.5rem;
-      font-weight: 300;
-      animation: fade-up 0.7s 0.2s ease both;
-    }
-
-    .hero-ctas {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 1rem;
-      justify-content: center;
-      animation: fade-up 0.7s 0.3s ease both;
-    }
-
-    .btn-primary {
-      background: var(--lavender);
-      color: var(--plum);
-      padding: 0.85rem 2.2rem;
-      border-radius: var(--radius-pill);
-      font-weight: 600;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      box-shadow: 0 0 0 0 rgba(196,181,253,0);
-    }
-
-    .btn-primary:hover {
-      background: var(--white);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(196,181,253,0.3);
-    }
-
-    .btn-secondary {
-      background: transparent;
-      color: var(--lavender);
-      padding: 0.85rem 2.2rem;
-      border-radius: var(--radius-pill);
-      font-weight: 500;
-      font-size: 1rem;
-      border: 1.5px solid rgba(196,181,253,0.35);
-      cursor: pointer;
-      transition: all var(--transition);
-      display: inline-flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .btn-secondary:hover {
-      border-color: var(--lavender);
-      background: rgba(196,181,253,0.08);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary .play-icon {
-      width: 28px;
-      height: 28px;
-      background: rgba(196,181,253,0.15);
-      border-radius: 50%;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.65rem;
-    }
-
-    /* Scroll indicator */
-    .scroll-hint {
-      position: absolute;
-      bottom: 2rem;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.4rem;
-      color: rgba(196,181,253,0.4);
-      font-size: 0.7rem;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      animation: fade-up 1s 0.8s ease both;
-    }
-
-    .scroll-hint i { animation: bounce-y 1.5s ease infinite; }
-
-    @keyframes bounce-y {
-      0%, 100% { transform: translateY(0); }
-      50% { transform: translateY(5px); }
-    }
-
-    @keyframes fade-up {
-      from { opacity: 0; transform: translateY(24px); }
-      to   { opacity: 1; transform: translateY(0); }
-    }
-
-    /* =====================
-       SECTION SHARED
-    ===================== */
-    section {
-      padding: 6rem 1.5rem;
-    }
-
-    .section-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-    }
-
-    .section-label {
-      display: inline-block;
-      font-size: 0.7rem;
-      font-weight: 600;
-      letter-spacing: 0.18em;
-      text-transform: uppercase;
-      color: var(--plum-mid);
-      margin-bottom: 0.8rem;
-    }
-
-    .section-headline {
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: clamp(2rem, 4.5vw, 3rem);
-      line-height: 1.15;
-      letter-spacing: -0.025em;
-      color: var(--plum);
-      margin-bottom: 1rem;
-    }
-
-    .section-headline span {
-      font-style: italic;
-      font-weight: 300;
-    }
-
-    .section-sub {
-      font-size: 1.05rem;
-      color: var(--ink-soft);
-      line-height: 1.7;
-      max-width: 560px;
-    }
-
-    /* =====================
-       PROBLEM
-    ===================== */
-    #problem {
-      background: var(--white);
-    }
-
-    .problem-header {
-      margin-bottom: 3.5rem;
-    }
-
-    .problem-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-    }
-
-    .problem-card {
-      background: var(--cream);
-      border: 1.5px solid rgba(74,29,109,0.08);
-      border-radius: var(--radius);
-      padding: 2rem;
-      position: relative;
-      overflow: hidden;
-      transition: transform var(--transition), box-shadow var(--transition), border-color var(--transition);
-    }
-
-    .problem-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 3px;
-      background: linear-gradient(90deg, var(--plum-mid), var(--lavender));
-      transform: scaleX(0);
-      transform-origin: left;
-      transition: transform var(--transition);
-    }
-
-    .problem-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow);
-      border-color: rgba(74,29,109,0.2);
-    }
-
-    .problem-card:hover::before {
-      transform: scaleX(1);
-    }
-
-    .problem-icon {
-      width: 48px;
-      height: 48px;
-      background: rgba(74,29,109,0.06);
-      border-radius: var(--radius-sm);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.3rem;
-      margin-bottom: 1.2rem;
-      color: var(--plum-mid);
-    }
-
-    .problem-card h3 {
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1.15rem;
-      color: var(--plum);
-      margin-bottom: 0.5rem;
-      line-height: 1.3;
-    }
-
-    .problem-card p {
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-      line-height: 1.65;
-    }
-
-    /* =====================
-       HOW IT WORKS
-    ===================== */
-    #how {
-      background: linear-gradient(160deg, var(--plum) 0%, #1A0635 100%);
-      position: relative;
-      overflow: hidden;
-    }
-
-    #how .section-headline { color: var(--white); }
-    #how .section-label { color: var(--lavender-dim); }
-    #how .section-sub { color: rgba(196,181,253,0.65); }
-
-    .how-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 0;
-      margin-top: 3.5rem;
-      position: relative;
-    }
-
-    .how-grid::before {
-      content: '';
-      position: absolute;
-      top: 3rem;
-      left: calc(12.5% + 24px);
-      right: calc(12.5% + 24px);
-      height: 2px;
-      background: linear-gradient(90deg, var(--lavender), rgba(196,181,253,0.2));
-      z-index: 0;
-    }
-
-    .step-card {
-      position: relative;
-      z-index: 1;
-      padding: 0 1.2rem;
-      text-align: center;
-    }
-
-    .step-num {
-      width: 56px;
-      height: 56px;
-      border-radius: 50%;
-      background: rgba(196,181,253,0.12);
-      border: 2px solid rgba(196,181,253,0.3);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--lavender);
-      margin: 0 auto 1.5rem;
-      transition: background var(--transition), border-color var(--transition);
-      position: relative;
-      z-index: 2;
-      background: var(--plum);
-    }
-
-    .step-card:hover .step-num {
-      background: var(--plum-light);
-      border-color: var(--lavender);
-    }
-
-    .step-card h3 {
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1rem;
-      color: var(--white);
-      margin-bottom: 0.6rem;
-    }
-
-    .step-card p {
-      font-size: 0.85rem;
-      color: rgba(196,181,253,0.6);
-      line-height: 1.65;
-    }
-
-    .step-tag {
-      display: inline-block;
-      margin-bottom: 0.7rem;
-      font-size: 0.68rem;
-      font-weight: 600;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      color: var(--gold);
-    }
-
-    /* =====================
-       TECH
-    ===================== */
-    #tech {
-      background: var(--white);
-    }
-
-    .tech-header {
-      display: flex;
-      align-items: flex-start;
-      justify-content: space-between;
-      gap: 2rem;
-      flex-wrap: wrap;
-      margin-bottom: 3.5rem;
-    }
-
-    .tech-philosophy {
-      display: inline-flex;
-      align-items: center;
-      gap: 0.5rem;
-      background: rgba(74,29,109,0.06);
-      border: 1px solid rgba(74,29,109,0.12);
-      border-radius: var(--radius-pill);
-      padding: 0.4rem 1.1rem;
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--plum-mid);
-      letter-spacing: 0.02em;
-      white-space: nowrap;
-      align-self: flex-start;
-      margin-top: 0.5rem;
-    }
-
-    .tech-philosophy i { color: var(--gold); }
-
-    .tech-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 1.5rem;
-    }
-
-    .tech-card {
-      background: var(--cream);
-      border: 1.5px solid rgba(74,29,109,0.08);
-      border-radius: var(--radius);
-      padding: 2rem 2rem 1.8rem;
-      position: relative;
-      overflow: hidden;
-      transition: transform var(--transition), box-shadow var(--transition);
-    }
-
-    .tech-card:hover {
-      transform: translateY(-4px);
-      box-shadow: var(--shadow);
-    }
-
-    .tech-card-icon {
-      font-size: 1.6rem;
-      margin-bottom: 1.1rem;
-      color: var(--plum-mid);
-    }
-
-    .tech-card h3 {
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--plum);
-      margin-bottom: 0.4rem;
-    }
-
-    .tech-card .tech-stat {
-      font-size: 0.78rem;
-      font-weight: 600;
-      color: var(--plum-light);
-      letter-spacing: 0.04em;
-      margin-bottom: 0.7rem;
-      display: block;
-    }
-
-    .tech-card p {
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-      line-height: 1.65;
-    }
-
-    .tech-card::after {
-      content: '';
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      width: 60px;
-      height: 60px;
-      background: radial-gradient(circle at bottom right, rgba(74,29,109,0.07), transparent);
-    }
-
-    /* =====================
-       TRACTION
-    ===================== */
-    #traction {
-      background: linear-gradient(135deg, #2D0A4E 0%, #1A0635 100%);
-      position: relative;
-      text-align: center;
-    }
-
-    #traction .section-headline { color: var(--white); }
-    #traction .section-label { color: var(--lavender-dim); }
-
-    .stats-row {
-      display: flex;
-      justify-content: center;
-      flex-wrap: wrap;
-      gap: 1px;
-      margin: 3rem 0 4rem;
-    }
-
-    .stat-block {
-      flex: 1;
-      min-width: 180px;
-      padding: 2.5rem 2rem;
-      background: rgba(255,255,255,0.04);
-      border: 1px solid rgba(196,181,253,0.1);
-      transition: background var(--transition);
-    }
-
-    .stat-block:first-child { border-radius: var(--radius) 0 0 var(--radius); }
-    .stat-block:last-child  { border-radius: 0 var(--radius) var(--radius) 0; }
-
-    .stat-block:hover {
-      background: rgba(196,181,253,0.07);
-    }
-
-    .stat-num {
-      font-family: 'Fraunces', serif;
-      font-weight: 900;
-      font-size: clamp(3rem, 7vw, 5rem);
-      color: var(--white);
-      line-height: 1;
-      letter-spacing: -0.03em;
-    }
-
-    .stat-num sup {
-      font-size: 0.4em;
-      font-weight: 300;
-      vertical-align: super;
-    }
-
-    .stat-label {
-      font-size: 0.85rem;
-      color: rgba(196,181,253,0.55);
-      font-weight: 500;
-      letter-spacing: 0.04em;
-      margin-top: 0.4rem;
-    }
-
-    .testimonial-card {
-      max-width: 620px;
-      margin: 0 auto;
-      background: rgba(255,255,255,0.05);
-      border: 1px solid rgba(196,181,253,0.15);
-      border-radius: var(--radius);
-      padding: 2.5rem;
-      position: relative;
-    }
-
-    .testimonial-card::before {
-      content: '\201C';
-      font-family: 'Fraunces', serif;
-      font-size: 5rem;
-      line-height: 1;
-      color: rgba(196,181,253,0.15);
-      position: absolute;
-      top: 0.5rem;
-      left: 1.5rem;
-    }
-
-    .testimonial-text {
-      font-family: 'Fraunces', serif;
-      font-style: italic;
-      font-weight: 300;
-      font-size: clamp(1rem, 2.5vw, 1.2rem);
-      color: rgba(255,255,255,0.88);
-      line-height: 1.7;
-      margin-bottom: 1.2rem;
-    }
-
-    .testimonial-author {
-      font-size: 0.82rem;
-      color: rgba(196,181,253,0.55);
-      font-weight: 500;
-      letter-spacing: 0.04em;
-    }
-
-    .testimonial-stars {
-      color: var(--gold);
-      margin-bottom: 0.8rem;
-      font-size: 0.85rem;
-    }
-
-    /* =====================
-       WAITLIST
-    ===================== */
-    #waitlist {
-      background: var(--cream);
-    }
-
-    .waitlist-box {
-      max-width: 560px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .waitlist-box .section-headline {
-      margin-bottom: 0.8rem;
-    }
-
-    .waitlist-box .section-sub {
-      margin: 0 auto 2.5rem;
-    }
-
-    .waitlist-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-      text-align: left;
-    }
-
-    .form-group {
-      display: flex;
-      flex-direction: column;
-      gap: 0.4rem;
-    }
-
-    .form-group label {
-      font-size: 0.8rem;
-      font-weight: 600;
-      color: var(--plum-mid);
-      letter-spacing: 0.04em;
-      text-transform: uppercase;
-    }
-
-    .form-group input,
-    .form-group select {
-      padding: 0.85rem 1.1rem;
-      border-radius: var(--radius-sm);
-      border: 1.5px solid rgba(74,29,109,0.15);
-      background: var(--white);
-      font-family: 'DM Sans', sans-serif;
-      font-size: 0.95rem;
-      color: var(--ink);
-      outline: none;
-      transition: border-color var(--transition), box-shadow var(--transition);
-      -webkit-appearance: none;
-    }
-
-    .form-group input:focus,
-    .form-group select:focus {
-      border-color: var(--plum-mid);
-      box-shadow: 0 0 0 3px rgba(74,29,109,0.1);
-    }
-
-    .form-group input.error,
-    .form-group select.error {
-      border-color: #ef4444;
-      box-shadow: 0 0 0 3px rgba(239,68,68,0.1);
-    }
-
-    .form-group .field-error {
-      font-size: 0.78rem;
-      color: #ef4444;
-      display: none;
-    }
-
-    .form-group .field-error.visible {
-      display: block;
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .btn-submit {
-      background: var(--plum-mid);
-      color: var(--white);
-      padding: 1rem 2rem;
-      border-radius: var(--radius-pill);
-      font-weight: 600;
-      font-size: 1rem;
-      border: none;
-      cursor: pointer;
-      width: 100%;
-      transition: background var(--transition), transform var(--transition), box-shadow var(--transition);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .btn-submit:hover {
-      background: var(--plum);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 30px rgba(74,29,109,0.35);
-    }
-
-    .form-success {
-      display: none;
-      background: rgba(74,29,109,0.07);
-      border: 1.5px solid rgba(74,29,109,0.18);
-      border-radius: var(--radius);
-      padding: 2rem;
-      text-align: center;
-    }
-
-    .form-success.visible {
-      display: block;
-    }
-
-    .form-success i {
-      font-size: 2.5rem;
-      color: var(--plum-mid);
-      margin-bottom: 0.8rem;
-    }
-
-    .form-success h3 {
-      font-family: 'Fraunces', serif;
-      font-size: 1.3rem;
-      color: var(--plum);
-      margin-bottom: 0.4rem;
-    }
-
-    .form-success p {
-      font-size: 0.9rem;
-      color: var(--ink-soft);
-    }
-
-    .privacy-note {
-      font-size: 0.75rem;
-      color: var(--ink-mute);
-      text-align: center;
-      margin-top: 0.8rem;
-    }
-
-    /* =====================
-       FOOTER
-    ===================== */
-    footer {
-      background: var(--plum);
-      color: rgba(196,181,253,0.6);
-      padding: 3rem 1.5rem;
-    }
-
-    .footer-inner {
-      max-width: 1100px;
-      margin: 0 auto;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 1.5rem;
-    }
-
-    .footer-left .footer-logo {
-      font-family: 'Fraunces', serif;
-      font-weight: 700;
-      font-size: 1.2rem;
-      color: var(--lavender);
-      margin-bottom: 0.4rem;
-    }
-
-    .footer-left p {
-      font-size: 0.8rem;
-      line-height: 1.6;
-    }
-
-    .footer-left a {
-      color: var(--lavender);
-      transition: opacity var(--transition);
-    }
-
-    .footer-left a:hover { opacity: 0.75; }
-
-    .footer-right {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      gap: 1rem;
-    }
-
-    .social-links {
-      display: flex;
-      gap: 0.8rem;
-    }
-
-    .social-links a {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      border: 1px solid rgba(196,181,253,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: rgba(196,181,253,0.55);
-      font-size: 0.85rem;
-      transition: all var(--transition);
-    }
-
-    .social-links a:hover {
-      border-color: var(--lavender);
-      color: var(--lavender);
-      background: rgba(196,181,253,0.08);
-    }
-
-    .footer-right p {
-      font-size: 0.75rem;
-    }
-
-    /* =====================
-       VIDEO MODAL
-    ===================== */
-    .modal-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      background: rgba(10, 0, 20, 0.9);
-      z-index: 200;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-      backdrop-filter: blur(8px);
-    }
-
-    .modal-overlay.open {
-      display: flex;
-    }
-
-    .modal-box {
-      background: var(--plum);
-      border-radius: var(--radius);
-      border: 1px solid rgba(196,181,253,0.2);
-      max-width: 760px;
-      width: 100%;
-      overflow: hidden;
-      position: relative;
-      animation: modal-in 0.25s ease;
-    }
-
-    @keyframes modal-in {
-      from { opacity: 0; transform: scale(0.94) translateY(12px); }
-      to   { opacity: 1; transform: scale(1) translateY(0); }
-    }
-
-    .modal-close {
-      position: absolute;
-      top: 0.75rem;
-      right: 0.75rem;
-      width: 34px;
-      height: 34px;
-      border-radius: 50%;
-      background: rgba(196,181,253,0.1);
-      border: 1px solid rgba(196,181,253,0.2);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--lavender);
-      cursor: pointer;
-      font-size: 0.9rem;
-      z-index: 2;
-      transition: background var(--transition);
-    }
-
-    .modal-close:hover { background: rgba(196,181,253,0.2); }
-
-    .modal-video-wrap {
-      aspect-ratio: 16/9;
-      background: #0D0020;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-direction: column;
-      gap: 1rem;
-      color: rgba(196,181,253,0.5);
-      font-size: 0.9rem;
-    }
-
-    .modal-video-wrap i {
-      font-size: 3rem;
-      color: rgba(196,181,253,0.3);
-    }
-
-    .modal-video-wrap iframe {
-      width: 100%;
-      height: 100%;
-      border: none;
-    }
-
-    .modal-footer {
-      padding: 1.2rem 1.5rem;
-      display: flex;
-      align-items: center;
-      gap: 0.6rem;
-    }
-
-    .modal-footer p {
-      font-size: 0.85rem;
-      color: rgba(196,181,253,0.6);
-    }
-
-    /* =====================
-       RESPONSIVE
-    ===================== */
-    @media (max-width: 900px) {
-      .how-grid {
-        grid-template-columns: repeat(2, 1fr);
-        gap: 2rem;
-      }
-
-      .how-grid::before { display: none; }
-
-      .tech-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 700px) {
-      nav { padding: 1rem 1.2rem; }
-
-      .nav-links { display: none; }
-      .nav-hamburger { display: flex; }
-
-      .nav-links.mobile-open {
-        display: flex;
-        flex-direction: column;
-        position: fixed;
-        top: 64px;
-        left: 0;
-        right: 0;
-        background: rgba(45,10,78,0.97);
-        backdrop-filter: blur(14px);
-        padding: 1.5rem;
-        gap: 1rem;
-        border-bottom: 1px solid rgba(196,181,253,0.1);
-        z-index: 99;
-      }
-
-      .how-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .tech-header {
-        flex-direction: column;
-      }
-
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-block:first-child { border-radius: var(--radius) var(--radius) 0 0; }
-      .stat-block:last-child  { border-radius: 0 0 var(--radius) var(--radius); }
-
-      .stats-row {
-        flex-direction: column;
-        gap: 1px;
-      }
-
-      .footer-inner { flex-direction: column; }
-      .footer-right { align-items: flex-start; }
-    }
-
-    /* =====================
-       SCROLL REVEAL
-    ===================== */
-    .reveal {
-      opacity: 0;
-      transform: translateY(28px);
-      transition: opacity 0.55s ease, transform 0.55s ease;
-    }
-
-    .reveal.visible {
-      opacity: 1;
-      transform: translateY(0);
-    }
-
-    .reveal-delay-1 { transition-delay: 0.1s; }
-    .reveal-delay-2 { transition-delay: 0.2s; }
-    .reveal-delay-3 { transition-delay: 0.3s; }
-  </style>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Jāgriti Technologies — The Safety of Every Indian</title>
+<meta name="description" content="Jāgriti Technologies builds intelligent safety technology around sensing, location, context and response." />
+<meta name="theme-color" content="#080B14" />
+
+<!-- Open Graph -->
+<meta property="og:type" content="website" />
+<meta property="og:title" content="Jāgriti Technologies — The Safety of Every Indian" />
+<meta property="og:description" content="Jāgriti Technologies builds intelligent safety technology around sensing, location, context and response." />
+<meta property="og:site_name" content="Jāgriti Technologies" />
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content="Jāgriti Technologies — The Safety of Every Indian" />
+<meta name="twitter:description" content="Jāgriti Technologies builds intelligent safety technology around sensing, location, context and response." />
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%23080B14'/%3E%3Ccircle cx='16' cy='16' r='3.2' fill='%232563EB'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%234338CA' stroke-width='1.6' opacity='0.7'/%3E%3Ccircle cx='16' cy='16' r='14' fill='none' stroke='%232563EB' stroke-width='1' opacity='0.35'/%3E%3C/svg%3E" />
+
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet" />
+
+<link rel="stylesheet" href="css/style.css" />
 </head>
-
 <body>
 
-  <!-- =====================
-       NAV
-  ===================== -->
-  <nav>
-    <a href="#hero" class="nav-logo">
-      <span class="shield-dot"></span>
-      Nirbhay
+<a class="skip-link" href="#main">Skip to content</a>
+
+<!-- =========================================================
+     NAVIGATION
+========================================================= -->
+<header class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#hero" class="nav-mark" aria-label="Jāgriti Technologies — home">
+      <span class="nav-mark-glyph" aria-hidden="true">
+        <svg viewBox="0 0 32 32" width="30" height="30">
+          <circle cx="16" cy="16" r="2.6" fill="currentColor"/>
+          <circle cx="16" cy="16" r="8" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.55"/>
+          <circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+        </svg>
+      </span>
+      <span class="nav-mark-text">
+        <span class="nav-mark-title">JĀGRITI</span>
+        <span class="nav-mark-sub">TECHNOLOGIES</span>
+      </span>
     </a>
-    <ul class="nav-links" id="navLinks">
-      <li><a href="#problem">Problem</a></li>
-      <li><a href="#how">How it Works</a></li>
-      <li><a href="#tech">Technology</a></li>
-      <li><a href="#traction">Traction</a></li>
-      <li><a href="https://docs.google.com/forms/d/e/1FAIpQLSfi9NrRlsIDogEPMWwOmNgAIzkGxMcdtFj3qIpCwz_UQJnniw/viewform"
-        target="_blank"
-        rel="noopener noreferrer"
-        class="nav-cta">
-        Join Waitlist
-        </a></li>
-    </ul>
-    <button class="nav-hamburger" id="hamburger" aria-label="Toggle menu">
-      <span></span>
-      <span></span>
-      <span></span>
-    </button>
-  </nav>
 
-  <!-- =====================
-       HERO
-  ===================== -->
-  <section id="hero">
-    <div class="hero-orb hero-orb-1"></div>
-    <div class="hero-orb hero-orb-2"></div>
+    <nav class="nav-links" id="navLinks" aria-label="Primary">
+      <a href="#signal-layer">Technology</a>
+      <a href="#product">Jāgriti</a>
+      <a href="#network">Network</a>
+      <a href="#vision">Vision</a>
+      <a href="#company">About</a>
+    </nav>
 
-    <div class="hero-inner">
-      <div class="hero-badge">
-        <span class="dot"></span>
-        300+ users &nbsp;·&nbsp; 1,800+ trips &nbsp;·&nbsp; 0 missed alerts
-      </div>
-
-      <h1 class="hero-headline">
-        Your phone becomes<br>
-        <em>a threat sensor</em>
-      </h1>
-
-      <p class="hero-sub">
-        Nirbhay detects struggle patterns using AI and alerts your guardians automatically. No manual SOS button required.
-      </p>
-
-      <div class="hero-ctas">
-       <a href="https://docs.google.com/forms/d/e/1FAIpQLSfi9NrRlsIDogEPMWwOmNgAIzkGxMcdtFj3qIpCwz_UQJnniw/viewform"
-            target="_blank"
-            rel="noopener noreferrer"
-            class="btn-primary">
-          Join Waitlist
-          <i class="fa-solid fa-arrow-right"></i>
-        </a>
-        <button class="btn-secondary" id="openDemo">
-          <span class="play-icon"><i class="fa-solid fa-play"></i></span>
-          Watch Demo
-        </button>
-      </div>
-    </div>
-
-    <div class="scroll-hint">
-      <span>Scroll</span>
-      <i class="fa-solid fa-chevron-down"></i>
-    </div>
-  </section>
-
-  <!-- =====================
-       PROBLEM
-  ===================== -->
-  <section id="problem">
-    <div class="section-inner">
-      <div class="problem-header reveal">
-        <span class="section-label">The Problem</span>
-        <h2 class="section-headline">Manual SOS apps fail<br><span>when you need them most</span></h2>
-        <p class="section-sub">Existing safety tools assume you can act. Real emergencies don't.</p>
-      </div>
-
-      <div class="problem-grid">
-        <div class="problem-card reveal reveal-delay-1">
-          <div class="problem-icon">
-            <i class="fa-solid fa-hand"></i>
-          </div>
-          <h3>Can't press a button during an attack</h3>
-          <p>Panic, restraint, or shock make manual triggers unreachable. Help shouldn't depend on your ability to tap a screen.</p>
-        </div>
-
-        <div class="problem-card reveal reveal-delay-2">
-          <div class="problem-icon">
-            <i class="fa-solid fa-battery-quarter"></i>
-          </div>
-          <h3>GPS drains battery in 2 hours</h3>
-          <p>Continuous location tracking kills your phone before you reach home. A dead phone is a dead safety net.</p>
-        </div>
-
-        <div class="problem-card reveal reveal-delay-3">
-          <div class="problem-icon">
-            <i class="fa-solid fa-bell-slash"></i>
-          </div>
-          <h3>False alarms desensitize guardians</h3>
-          <p>When every stumble triggers an alert, families start ignoring them. Precision matters more than volume.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       HOW IT WORKS
-  ===================== -->
-  <section id="how">
-    <div class="section-inner">
-      <div class="reveal">
-        <span class="section-label">How It Works</span>
-        <h2 class="section-headline">Autonomous protection<br><span>in 4 steps</span></h2>
-        <p class="section-sub" style="color:rgba(196,181,253,0.65)">From a single tap to a sent alert — seamlessly, silently.</p>
-      </div>
-
-      <div class="how-grid">
-        <div class="step-card reveal reveal-delay-1">
-          <div class="step-num">1</div>
-          <span class="step-tag">Start</span>
-          <h3>Begin your trip</h3>
-          <p>One tap starts monitoring. Then pocket your phone. Nirbhay runs quietly in the background.</p>
-        </div>
-
-        <div class="step-card reveal reveal-delay-2">
-          <div class="step-num">2</div>
-          <span class="step-tag">Sense</span>
-          <h3>Sensors listen</h3>
-          <p>Accelerometer and gyroscope continuously read your motion — flagging irregular struggle patterns.</p>
-        </div>
-
-        <div class="step-card reveal reveal-delay-3">
-          <div class="step-num">3</div>
-          <span class="step-tag">Verify</span>
-          <h3>Threat verified</h3>
-          <p>Our on-device GRU neural network analyzes 20 seconds of motion data before confirming a threat.</p>
-        </div>
-
-        <div class="step-card reveal reveal-delay-3">
-          <div class="step-num">4</div>
-          <span class="step-tag">Alert</span>
-          <h3>Alert sent</h3>
-          <p>Automatic SMS with live location dispatched to your guardians — no internet required.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       TECHNOLOGY
-  ===================== -->
-  <section id="tech">
-    <div class="section-inner">
-      <div class="tech-header reveal">
-        <div>
-          <span class="section-label">Technology</span>
-          <h2 class="section-headline">Built for<br><span>India's realities</span></h2>
-        </div>
-        <div style="display:flex;flex-direction:column;gap:0.6rem;align-items:flex-end;flex-shrink:0;">
-          <div class="tech-philosophy">
-            <i class="fa-solid fa-shield-halved"></i>
-            Reliability &gt; Precision
-          </div>
-          <p class="section-sub" style="text-align:right;max-width:300px;">Designed for low-signal, low-battery, real-world India.</p>
-        </div>
-      </div>
-
-      <div class="tech-grid">
-        <div class="tech-card reveal reveal-delay-1">
-          <div class="tech-card-icon">
-            <i class="fa-solid fa-brain"></i>
-          </div>
-          <h3>GRU Neural Network</h3>
-          <span class="tech-stat">94% threat detection accuracy · 200ms on-device inference</span>
-          <p>Runs entirely on your phone. No cloud required for detection — your data never leaves your device during analysis.</p>
-        </div>
-
-        <div class="tech-card reveal reveal-delay-2">
-          <div class="tech-card-icon">
-            <i class="fa-solid fa-tower-cell"></i>
-          </div>
-          <h3>Cell Tower Triangulation</h3>
-          <span class="tech-stat">5% battery drain vs. 30% with GPS</span>
-          <p>We triangulate via cell towers instead of GPS. Your phone lasts all day, and your location is still accurate enough to matter.</p>
-        </div>
-
-        <div class="tech-card reveal reveal-delay-1">
-          <div class="tech-card-icon">
-            <i class="fa-solid fa-message"></i>
-          </div>
-          <h3>SMS Fallback</h3>
-          <span class="tech-stat">Works without internet via Fast2SMS</span>
-          <p>Even in areas with no data signal, alerts reach your family via SMS. No app installation needed on the guardian's side.</p>
-        </div>
-
-        <div class="tech-card reveal reveal-delay-2">
-          <div class="tech-card-icon">
-            <i class="fa-solid fa-database"></i>
-          </div>
-          <h3>Offline Queue</h3>
-          <span class="tech-stat">Zero alerts lost to connectivity gaps</span>
-          <p>All alerts are queued locally and fire the moment signal returns. Dead zones don't create safety gaps.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       TRACTION
-  ===================== -->
-  <section id="traction">
-    <div class="section-inner">
-      <div class="reveal">
-        <span class="section-label">Traction</span>
-        <h2 class="section-headline" style="color:#fff;">Proof it works,<br><span>in the real world</span></h2>
-      </div>
-
-      <div class="stats-row reveal">
-        <div class="stat-block">
-          <div class="stat-num">300<sup>+</sup></div>
-          <div class="stat-label">Early Users</div>
-        </div>
-        <div class="stat-block">
-          <div class="stat-num">1.8<sup>K</sup></div>
-          <div class="stat-label">Trips Monitored</div>
-        </div>
-        <div class="stat-block">
-          <div class="stat-num">0</div>
-          <div class="stat-label">Missed Alerts</div>
-        </div>
-      </div>
-
-      <div class="testimonial-card reveal">
-        <div class="testimonial-stars">
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-          <i class="fa-solid fa-star"></i>
-        </div>
-        <p class="testimonial-text">
-          "I forgot the app was running. Then my mom called asking if I was okay. It just worked."
-        </p>
-        <p class="testimonial-author">— Nirbhay user, Delhi</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       WAITLIST
-  ===================== -->
-  <section id="waitlist">
-    <div class="section-inner">
-      <div class="waitlist-box">
-        <div class="reveal">
-          <span class="section-label">Early Access</span>
-          <h2 class="section-headline">Be the first to know<br><span>when we launch</span></h2>
-          <p class="section-sub">We're onboarding early users in Delhi NCR first. Reserve your spot today.</p>
-        </div>
-
-        <form class="waitlist-form reveal" id="waitlistForm" novalidate>
-          <div class="form-row">
-            <div class="form-group">
-              <label for="wl-name">Full Name</label>
-              <input type="text" id="wl-name" placeholder="Priya Sharma" />
-              <span class="field-error" id="err-name">Please enter your name</span>
-            </div>
-            <div class="form-group">
-              <label for="wl-city">City</label>
-              <select id="wl-city">
-                <option value="">Select city</option>
-                <option value="delhi">Delhi / NCR</option>
-                <option value="mumbai">Mumbai</option>
-                <option value="bengaluru">Bengaluru</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-          </div>
-
-          <div class="form-group">
-            <label for="wl-email">Email Address</label>
-            <input type="email" id="wl-email" placeholder="priya@example.com" />
-            <span class="field-error" id="err-email">Please enter a valid email</span>
-          </div>
-
-          <button type="submit" class="btn-submit">
-            Join Waitlist &nbsp;<i class="fa-solid fa-arrow-right"></i>
-          </button>
-        </form>
-
-        <p class="privacy-note reveal">
-          <i class="fa-solid fa-lock"></i>&nbsp;
-          We respect your privacy. No spam, ever.
-        </p>
-
-        <div class="form-success" id="formSuccess">
-          <i class="fa-solid fa-circle-check"></i>
-          <h3>You're on the list!</h3>
-          <p>We'll reach out to you soon with early access details. Thank you for believing in safer streets.</p>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <!-- =====================
-       FOOTER
-  ===================== -->
-  <footer>
-    <div class="footer-inner">
-      <div class="footer-left">
-        <div class="footer-logo">Nirbhay</div>
-        <p>Autonomous women's safety. No button required.</p>
-        <p style="margin-top:0.3rem;">
-          <i class="fa-solid fa-envelope" style="font-size:0.75rem;margin-right:0.3rem;"></i>
-          <a href="mailto:nirbhaysupport@gmail.com">nirbhaysupport@gmail.com</a>
-        </p>
-        <p style="margin-top:0.3rem;">
-          Made with ❤️ for women's safety in India
-        </p>
-      </div>
-
-      <div class="footer-right">
-        <div class="social-links">
-          <a href="https://www.linkedin.com/company/nirbhay-technology-pvt-ltd"
-            target="_blank"
-            rel="noopener noreferrer"
-            aria-label="LinkedIn"
-            title="LinkedIn">
-            <i class="fa-brands fa-linkedin-in"></i>
-         </a>
-          <a href="#" aria-label="X / Twitter" title="X / Twitter">
-            <i class="fa-brands fa-x-twitter"></i>
-          </a>
-          <a href="#" aria-label="Instagram" title="Instagram">
-            <i class="fa-brands fa-instagram"></i>
-          </a>
-        </div>
-        <p>© 2025 Nirbhay. All rights reserved.</p>
-      </div>
-    </div>
-  </footer>
-
-  <!-- =====================
-       VIDEO MODAL
-  ===================== -->
-  <div class="modal-overlay" id="demoModal">
-    <div class="modal-box">
-      <button class="modal-close" id="closeModal" aria-label="Close">
-        <i class="fa-solid fa-xmark"></i>
+    <div class="nav-actions">
+      <a href="#product" class="btn btn-ghost nav-contact">Contact</a>
+      <a href="#product" class="btn btn-primary nav-explore">Explore Jāgriti</a>
+      <button class="nav-burger" id="navBurger" aria-expanded="false" aria-controls="mobileNav" aria-label="Open menu">
+        <span></span><span></span><span></span>
       </button>
-      <div class="modal-video-wrap" id="videoContainer">
-             <iframe width="560" height="315" src="https://www.youtube.com/embed/SGHG1mQmwSs?si=uo-8TwBs4-ld2CmW" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
-        <i class="fa-solid fa-circle-play"></i>
-      </div>
-      <div class="modal-footer">
-        <i class="fa-solid fa-shield-halved" style="color:#C4B5FD;"></i>
-        <p>Nirbhay — Autonomous safety. No button required.</p>
-      </div>
     </div>
   </div>
 
-  <!-- =====================
-       JAVASCRIPT
-  ===================== -->
-  <script>
-    /* ----- HAMBURGER ----- */
-    const hamburger = document.getElementById('hamburger');
-    const navLinks  = document.getElementById('navLinks');
+  <div class="mobile-nav" id="mobileNav" aria-hidden="true">
+    <nav aria-label="Mobile">
+      <a href="#signal-layer">Technology</a>
+      <a href="#product">Jāgriti</a>
+      <a href="#network">Network</a>
+      <a href="#vision">Vision</a>
+      <a href="#company">About</a>
+      <a href="#product">Contact</a>
+    </nav>
+    <a href="#product" class="btn btn-primary mobile-explore">Explore Jāgriti</a>
+  </div>
+</header>
 
-    hamburger.addEventListener('click', () => {
-      navLinks.classList.toggle('mobile-open');
-    });
+<main id="main">
 
-    // Close mobile nav when a link is clicked
-    navLinks.querySelectorAll('a').forEach(link => {
-      link.addEventListener('click', () => {
-        navLinks.classList.remove('mobile-open');
-      });
-    });
+  <!-- =========================================================
+       HERO — NATIONAL SCALE
+  ========================================================= -->
+  <section id="hero" class="hero" aria-label="Introduction">
+    <canvas id="heroCanvas" class="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-vignette" aria-hidden="true"></div>
 
-    /* ----- DEMO MODAL ----- */
-    const modal     = document.getElementById('demoModal');
-    const openBtn   = document.getElementById('openDemo');
-    const closeBtn  = document.getElementById('closeModal');
+    <div class="hero-labels" aria-hidden="true">
+      <span class="hero-label hl-1">MOTION SIGNAL</span>
+      <span class="hero-label hl-2">LOCATION</span>
+      <span class="hero-label hl-3">CONNECTIVITY</span>
+      <span class="hero-label hl-4">CONTEXT</span>
+      <span class="hero-label hl-5">ANOMALY</span>
+      <span class="hero-label hl-6">RESPONSE</span>
+    </div>
 
-    openBtn.addEventListener('click', () => {
-      modal.classList.add('open');
-      document.body.style.overflow = 'hidden';
-    });
+    <div class="hero-content">
+      <h1 class="hero-headline">
+        <span class="line">THE SAFETY</span>
+        <span class="line">OF EVERY <em>INDIAN.</em></span>
+      </h1>
+      <p class="hero-kicker">JĀGRITI TECHNOLOGIES</p>
+      <p class="hero-sub">Building intelligent technology that helps people sense risk, understand context, and respond when it matters.</p>
+      <div class="hero-ctas">
+        <a href="#product" class="btn btn-primary btn-lg">Explore Jāgriti</a>
+        <a href="#vision" class="btn btn-outline btn-lg">Our Vision</a>
+      </div>
+    </div>
 
-    const closeModal = () => {
-      modal.classList.remove('open');
-      document.body.style.overflow = '';
-    };
+    <div class="hero-scroll" aria-hidden="true">
+      <span>Scroll</span>
+      <i></i>
+    </div>
+  </section>
 
-    closeBtn.addEventListener('click', closeModal);
+  <!-- =========================================================
+       TRANSITION
+  ========================================================= -->
+  <section class="transition" aria-label="Transition">
+    <p class="transition-line reveal" data-split>India moves at extraordinary scale.</p>
+    <p class="transition-line transition-line-dim reveal" data-split>Safety has to move with it.</p>
+  </section>
 
-    modal.addEventListener('click', e => {
-      if (e.target === modal) closeModal();
-    });
+  <!-- =========================================================
+       SIGNAL LAYER
+  ========================================================= -->
+  <section id="signal-layer" class="signal-layer" aria-label="The signal layer">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">01 · The Signal Layer</span>
+        <h2 class="h2">EVERY MOMENT<br/>PRODUCES SIGNALS.</h2>
+        <p class="lede">Motion, location, connectivity and context are constantly available. Jāgriti is built to read them responsibly.</p>
+      </div>
 
-    document.addEventListener('keydown', e => {
-      if (e.key === 'Escape') closeModal();
-    });
+      <div class="signal-board reveal" id="signalBoard">
+        <div class="signal-cell" data-signal="motion">
+          <canvas class="signal-canvas" width="240" height="80"></canvas>
+          <span class="signal-name">MOTION</span>
+        </div>
+        <div class="signal-cell" data-signal="location">
+          <canvas class="signal-canvas" width="240" height="80"></canvas>
+          <span class="signal-name">LOCATION</span>
+        </div>
+        <div class="signal-cell" data-signal="time">
+          <canvas class="signal-canvas" width="240" height="80"></canvas>
+          <span class="signal-name">TIME</span>
+        </div>
+        <div class="signal-cell" data-signal="connectivity">
+          <canvas class="signal-canvas" width="240" height="80"></canvas>
+          <span class="signal-name">CONNECTIVITY</span>
+        </div>
+        <div class="signal-cell" data-signal="route">
+          <canvas class="signal-canvas" width="240" height="80"></canvas>
+          <span class="signal-name">ROUTE</span>
+        </div>
+        <div class="signal-cell" data-signal="context">
+          <canvas class="signal-canvas" width="240" height="80"></canvas>
+          <span class="signal-name">CONTEXT</span>
+        </div>
 
-    /* ----- FORM VALIDATION ----- */
-    const form      = document.getElementById('waitlistForm');
-    const nameInput = document.getElementById('wl-name');
-    const emailInput= document.getElementById('wl-email');
-    const errName   = document.getElementById('err-name');
-    const errEmail  = document.getElementById('err-email');
-    const success   = document.getElementById('formSuccess');
+        <div class="signal-core">
+          <span class="signal-core-ring r1"></span>
+          <span class="signal-core-ring r2"></span>
+          <span class="signal-core-dot"></span>
+          <span class="signal-core-label">JĀGRITI<br/>INTELLIGENCE</span>
+        </div>
+      </div>
+    </div>
+  </section>
 
-    const isValidEmail = v => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v);
+  <!-- =========================================================
+       INTELLIGENCE ENGINE
+  ========================================================= -->
+  <section id="intelligence" class="intelligence" aria-label="The intelligence engine">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">02 · The Intelligence Engine</span>
+        <h2 class="h2">FROM SIGNAL<br/>TO UNDERSTANDING.</h2>
+        <p class="lede">Raw signals mean little on their own. Jāgriti's pipeline turns them into context — and context into a decision.</p>
+      </div>
 
-    const setError = (input, errEl, show) => {
-      if (show) {
-        input.classList.add('error');
-        errEl.classList.add('visible');
-      } else {
-        input.classList.remove('error');
-        errEl.classList.remove('visible');
-      }
-    };
+      <div class="engine-diagram reveal" id="engineDiagram">
+        <div class="engine-col engine-inputs">
+          <span class="engine-col-label">INPUTS</span>
+          <div class="engine-node" data-node="in-motion">Motion</div>
+          <div class="engine-node" data-node="in-location">Location</div>
+          <div class="engine-node" data-node="in-network">Network</div>
+          <div class="engine-node" data-node="in-context">Context</div>
+        </div>
 
-    nameInput.addEventListener('input', () => setError(nameInput, errName, false));
-    emailInput.addEventListener('input', () => setError(emailInput, errEmail, false));
+        <svg class="engine-svg" viewBox="0 0 400 320" preserveAspectRatio="none" aria-hidden="true">
+          <g class="engine-paths"></g>
+        </svg>
 
-    form.addEventListener('submit', e => {
-      e.preventDefault();
-      let valid = true;
+        <div class="engine-col engine-pipeline">
+          <span class="engine-col-label">PROCESSING</span>
+          <div class="engine-stage" data-stage="detect">DETECT</div>
+          <div class="engine-stage" data-stage="interpret">INTERPRET</div>
+          <div class="engine-stage" data-stage="contextualize">CONTEXTUALIZE</div>
+          <div class="engine-stage" data-stage="decide">DECIDE</div>
+        </div>
 
-      if (!nameInput.value.trim()) {
-        setError(nameInput, errName, true);
-        valid = false;
-      }
+        <div class="engine-col engine-output">
+          <span class="engine-col-label">OUTPUT</span>
+          <div class="engine-node engine-node-output">RESPONSE</div>
+        </div>
+      </div>
+    </div>
+  </section>
 
-      if (!isValidEmail(emailInput.value.trim())) {
-        setError(emailInput, errEmail, true);
-        valid = false;
-      }
+  <!-- =========================================================
+       THE MOMENT — cinematic scroll sequence
+  ========================================================= -->
+  <section id="moment" class="moment" aria-label="A moment, walked through">
+    <div class="moment-sticky">
+      <div class="moment-eyebrow">03 · The Moment</div>
 
-      if (!valid) return;
+      <div class="moment-scene" data-scene="0">
+        <span class="moment-tag">01 / NORMAL</span>
+        <h3 class="moment-title">Everything is calm.</h3>
+        <div class="moment-wave" id="momentWave"><canvas></canvas></div>
+      </div>
 
-      // Log to console (replace with real API call when backend is ready)
-      console.log('Waitlist submission:', {
-        name:  nameInput.value.trim(),
-        email: emailInput.value.trim(),
-        city:  document.getElementById('wl-city').value,
-      });
+      <div class="moment-scene" data-scene="1">
+        <span class="moment-tag">02 / CHANGE</span>
+        <h3 class="moment-title">Something changes.</h3>
+        <p class="moment-copy">A motion signal shifts outside its normal pattern.</p>
+      </div>
 
-      form.style.display   = 'none';
-      success.classList.add('visible');
-    });
+      <div class="moment-scene" data-scene="2">
+        <span class="moment-tag moment-tag-alert">03 / NOTICE</span>
+        <h3 class="moment-title">The system notices.</h3>
+        <p class="moment-copy">An anomaly is flagged for further context — not yet an alert.</p>
+      </div>
 
-    /* ----- SCROLL REVEAL ----- */
-    const revealObserver = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          revealObserver.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.12 });
+      <div class="moment-scene" data-scene="3">
+        <span class="moment-tag moment-tag-alert">04 / CONTEXT</span>
+        <h3 class="moment-title">Context matters.</h3>
+        <div class="moment-context">
+          <span>Location</span><span>Movement</span><span>Connectivity</span>
+        </div>
+      </div>
 
-    document.querySelectorAll('.reveal').forEach(el => {
-      revealObserver.observe(el);
-    });
-  </script>
+      <div class="moment-scene" data-scene="4">
+        <span class="moment-tag moment-tag-response">05 / RESPONSE</span>
+        <h3 class="moment-title">The system responds.</h3>
+        <ul class="moment-checklist">
+          <li>Guardian notified</li>
+          <li>Live location shared</li>
+          <li>Workflow initiated</li>
+        </ul>
+      </div>
+
+      <div class="moment-progress" aria-hidden="true">
+        <span></span><span></span><span></span><span></span><span></span>
+      </div>
+    </div>
+    <div class="moment-spacer" aria-hidden="true"></div>
+  </section>
+
+  <!-- =========================================================
+       MEET JĀGRITI — product
+  ========================================================= -->
+  <section id="product" class="product" aria-label="Meet Jāgriti">
+    <div class="wrap">
+      <div class="section-head reveal center">
+        <span class="eyebrow">The Product</span>
+        <h2 class="h2">MEET JĀGRITI.</h2>
+        <p class="lede center">An intelligent safety layer designed for the moments you cannot predict.</p>
+      </div>
+
+      <div class="product-showcase reveal">
+        <div class="phone" id="productPhone">
+          <div class="phone-notch"></div>
+          <div class="phone-screen" id="phoneScreen">
+            <!-- screens injected by JS -->
+          </div>
+        </div>
+
+        <div class="product-tabs" id="productTabs" role="tablist" aria-label="Jāgriti screens">
+          <button role="tab" aria-selected="true" data-screen="status">Safety Status</button>
+          <button role="tab" aria-selected="false" data-screen="detection">Autonomous Detection</button>
+          <button role="tab" aria-selected="false" data-screen="emergency">Emergency Workflow</button>
+          <button role="tab" aria-selected="false" data-screen="location">Live Location</button>
+          <button role="tab" aria-selected="false" data-screen="route">Safe Route</button>
+          <button role="tab" aria-selected="false" data-screen="infra">Nearby Infrastructure</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       AUTONOMOUS SAFETY
+  ========================================================= -->
+  <section id="autonomous" class="autonomous" aria-label="Autonomous safety">
+    <div class="wrap split">
+      <div class="section-head reveal">
+        <span class="eyebrow">Autonomous Safety</span>
+        <h2 class="h2">WHEN YOU CANNOT<br/>REACH FOR YOUR PHONE.</h2>
+        <p class="lede">Jāgriti can use on-device motion signals to identify potential anomalies and initiate an appropriate emergency workflow — without requiring a manual trigger.</p>
+        <p class="lede small">This is intelligent, context-aware detection — not a guarantee. Jāgriti is built to help you respond better to risk, not to eliminate it.</p>
+      </div>
+
+      <div class="sensor-panel reveal">
+        <div class="sensor-row">
+          <span class="sensor-label">MOTION SIGNAL</span>
+          <span class="sensor-state" id="sensorState">Normal</span>
+        </div>
+        <canvas id="sensorCanvas" class="sensor-canvas" width="640" height="160"></canvas>
+        <div class="sensor-readout">
+          <div><span>Accelerometer</span><i></i></div>
+          <div><span>Gyroscope</span><i></i></div>
+          <div><span>Motion pattern</span><i></i></div>
+        </div>
+        <div class="sensor-system-msg" id="sensorMsg">SYSTEM · Monitoring motion pattern</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SAFE ROUTES
+  ========================================================= -->
+  <section id="routes" class="routes" aria-label="Safe routes">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Location Intelligence</span>
+        <h2 class="h2">A ROUTE IS MORE<br/>THAN A DISTANCE.</h2>
+        <p class="lede">Jāgriti explores how location intelligence can help people consider safety alongside time and distance.</p>
+      </div>
+
+      <div class="route-panel reveal">
+        <svg class="route-map" viewBox="0 0 600 380" aria-hidden="true">
+          <g class="route-grid"></g>
+          <path class="route-path route-fast" d="M60,320 C160,300 200,180 300,150 C400,120 460,90 540,60" />
+          <path class="route-path route-safe" d="M60,320 C120,260 140,200 220,190 C300,180 340,140 380,110 C440,70 480,80 540,60" />
+          <g class="route-infra"></g>
+          <circle class="route-point route-start" cx="60" cy="320" r="7" />
+          <circle class="route-point route-end" cx="540" cy="60" r="7" />
+        </svg>
+
+        <div class="route-cards">
+          <button class="route-card active" data-route="fast" aria-pressed="true">
+            <span class="route-card-tag">FASTEST</span>
+            <span class="route-card-stat">14 min · 3.1 km</span>
+            <span class="route-card-note">Shortest path by distance.</span>
+          </button>
+          <button class="route-card" data-route="safe" aria-pressed="false">
+            <span class="route-card-tag">SAFETY-AWARE</span>
+            <span class="route-card-stat">19 min · 3.6 km</span>
+            <span class="route-card-note">Routed near lit streets and nearby safety infrastructure.</span>
+          </button>
+        </div>
+        <p class="route-disclaimer">Safety-aware routing considers available signals such as lighting and reported infrastructure — it does not guarantee a safer journey and is not a crime prediction.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       EMERGENCY NETWORK
+  ========================================================= -->
+  <section id="network" class="network" aria-label="The safety network">
+    <div class="wrap">
+      <div class="section-head reveal center">
+        <span class="eyebrow">The Network</span>
+        <h2 class="h2">SAFETY IS A NETWORK.</h2>
+        <p class="lede center">Jāgriti is not a single button. It's a chain of systems that activate together.</p>
+      </div>
+
+      <div class="network-graph reveal" id="networkGraph">
+        <svg viewBox="0 0 900 220" aria-hidden="true">
+          <g class="network-lines"></g>
+        </svg>
+        <div class="network-nodes">
+          <button class="network-node" data-node="0"><span>Person</span></button>
+          <button class="network-node" data-node="1"><span>Device</span></button>
+          <button class="network-node" data-node="2"><span>Location</span></button>
+          <button class="network-node" data-node="3"><span>Contacts</span></button>
+          <button class="network-node" data-node="4"><span>Support</span></button>
+          <button class="network-node" data-node="5"><span>Response</span></button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       OFFLINE RESILIENCE
+  ========================================================= -->
+  <section id="offline" class="offline dark-zone" aria-label="Offline resilience">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Offline Resilience</span>
+        <h2 class="h2">WHEN THE SIGNAL<br/>DISAPPEARS.</h2>
+        <p class="lede">Critical safety workflows should be designed for imperfect connectivity.</p>
+      </div>
+
+      <div class="offline-flow reveal" id="offlineFlow">
+        <div class="offline-status">
+          <span class="offline-dot"></span>
+          <span id="offlineStatusText">NETWORK OFFLINE</span>
+        </div>
+        <div class="offline-chain">
+          <div class="offline-node" data-step="device">DEVICE</div>
+          <div class="offline-node" data-step="local">LOCAL PROCESSING</div>
+          <div class="offline-node" data-step="queue">EVENT QUEUE</div>
+          <div class="offline-node" data-step="restored">NETWORK RESTORED</div>
+          <div class="offline-node" data-step="delivered">ACTION DELIVERED</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       SAFETY INFRASTRUCTURE (zoom out)
+  ========================================================= -->
+  <section id="infrastructure" class="infrastructure" aria-label="Safety infrastructure">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Zooming Out</span>
+        <h2 class="h2">FROM PERSONAL SAFETY<br/>TO CONNECTED SAFETY.</h2>
+        <p class="lede">The long-term vision extends beyond one application toward connected safety infrastructure — people, campuses, routes and support systems working as one layer.</p>
+        <div class="vision-tags">
+          <span class="tag tag-current">CURRENT PRODUCT</span>
+          <span class="tag tag-vision">LONG-TERM VISION</span>
+        </div>
+      </div>
+
+      <div class="city-canvas-wrap reveal">
+        <canvas id="cityCanvas" width="1200" height="480"></canvas>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       BEYOND THE PHONE
+  ========================================================= -->
+  <section id="beyond" class="beyond" aria-label="Beyond the phone">
+    <div class="wrap">
+      <div class="section-head reveal center">
+        <span class="eyebrow">Roadmap · Vision</span>
+        <h2 class="h2">THE PHONE IS<br/>ONLY THE BEGINNING.</h2>
+      </div>
+
+      <div class="beyond-row reveal">
+        <div class="beyond-node beyond-active">
+          <span class="beyond-icon" data-icon="phone"></span>
+          <span>Smartphone</span>
+          <em>current</em>
+        </div>
+        <div class="beyond-node">
+          <span class="beyond-icon" data-icon="watch"></span>
+          <span>Wearable</span>
+          <em>vision</em>
+        </div>
+        <div class="beyond-node">
+          <span class="beyond-icon" data-icon="campus"></span>
+          <span>Campus</span>
+          <em>vision</em>
+        </div>
+        <div class="beyond-node">
+          <span class="beyond-icon" data-icon="vehicle"></span>
+          <span>Vehicle</span>
+          <em>vision</em>
+        </div>
+        <div class="beyond-node">
+          <span class="beyond-icon" data-icon="city"></span>
+          <span>City</span>
+          <em>vision</em>
+        </div>
+        <div class="beyond-node">
+          <span class="beyond-icon" data-icon="infra"></span>
+          <span>Infrastructure</span>
+          <em>vision</em>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       TECHNOLOGY ARCHITECTURE
+  ========================================================= -->
+  <section id="architecture" class="architecture dark-zone" aria-label="Technology architecture">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Architecture</span>
+        <h2 class="h2">HOW JĀGRITI<br/>IS BUILT.</h2>
+        <p class="lede">A layered system — from on-device sensing to a connected safety network.</p>
+      </div>
+
+      <div class="arch-stack reveal" id="archStack">
+        <button class="arch-layer" data-layer="device" aria-expanded="false">
+          <span class="arch-layer-name">DEVICE LAYER</span>
+          <span class="arch-layer-detail">Runs on the phone already in your pocket — no additional hardware required today.</span>
+        </button>
+        <button class="arch-layer" data-layer="sensing" aria-expanded="false">
+          <span class="arch-layer-name">SENSING LAYER</span>
+          <span class="arch-layer-detail">Accelerometer and gyroscope readings captured continuously and efficiently.</span>
+        </button>
+        <button class="arch-layer" data-layer="intelligence" aria-expanded="false">
+          <span class="arch-layer-name">INTELLIGENCE LAYER</span>
+          <span class="arch-layer-detail">An on-device model interprets motion patterns to flag potential anomalies.</span>
+        </button>
+        <button class="arch-layer" data-layer="location" aria-expanded="false">
+          <span class="arch-layer-name">LOCATION LAYER</span>
+          <span class="arch-layer-detail">Geospatial positioning designed to stay useful even with limited GPS or battery.</span>
+        </button>
+        <button class="arch-layer" data-layer="communication" aria-expanded="false">
+          <span class="arch-layer-name">COMMUNICATION LAYER</span>
+          <span class="arch-layer-detail">Realtime delivery with an SMS fallback, so alerts can still reach guardians without data connectivity.</span>
+        </button>
+        <button class="arch-layer" data-layer="network" aria-expanded="false">
+          <span class="arch-layer-name">SAFETY NETWORK</span>
+          <span class="arch-layer-detail">Guardians, support systems and — over time — a wider connected safety layer.</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       PRIVACY
+  ========================================================= -->
+  <section id="privacy" class="privacy" aria-label="Privacy">
+    <div class="wrap split reverse">
+      <div class="privacy-viz reveal" aria-hidden="true">
+        <span class="privacy-ring pr-1"></span>
+        <span class="privacy-ring pr-2"></span>
+        <span class="privacy-ring pr-3"></span>
+        <span class="privacy-core"></span>
+      </div>
+      <div class="section-head reveal">
+        <span class="eyebrow">Privacy</span>
+        <h2 class="h2">SAFETY WITHOUT<br/>COMPROMISING TRUST.</h2>
+        <ul class="privacy-list">
+          <li>Only the data necessary for safety features is collected.</li>
+          <li>Sensitive signals are processed responsibly, on-device where possible.</li>
+          <li>Infrastructure is built with security as a baseline requirement.</li>
+          <li>People stay in control of what they share, and with whom.</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       HUMAN LAYER
+  ========================================================= -->
+  <section class="human" aria-label="People, not technology">
+    <p class="human-line reveal">TECHNOLOGY<br/>IS NOT<br/>THE HERO.</p>
+    <p class="human-line human-line-2 reveal">PEOPLE ARE.</p>
+    <p class="human-sub reveal">Jāgriti exists to make technology useful when attention, time, connectivity or control may be limited.</p>
+  </section>
+
+  <!-- =========================================================
+       INDIA SCALE
+  ========================================================= -->
+  <section id="scale" class="scale dark-zone" aria-label="India, at scale">
+    <canvas id="scaleCanvas" class="scale-canvas"></canvas>
+    <div class="scale-content">
+      <span class="eyebrow">A Visual Metaphor For Scale</span>
+      <div class="scale-counter" id="scaleCounter">1</div>
+      <p class="scale-caption">These numbers are illustrative, not company statistics.</p>
+      <h2 class="h2 scale-echo">THE SAFETY<br/>OF EVERY INDIAN.</h2>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       TRACTION
+  ========================================================= -->
+  <section id="traction" class="traction" aria-label="Where we are">
+    <div class="wrap">
+      <div class="section-head reveal center">
+        <span class="eyebrow">Built Through Iteration</span>
+        <h2 class="h2">EARLY. HONEST. ITERATING.</h2>
+        <p class="lede center">Jāgriti is early — built through a continuous cycle of beta testing, feedback and refinement, not a finished, static product.</p>
+      </div>
+
+      <div class="traction-stats reveal">
+        <div class="stat">
+          <span class="stat-num" data-count="300" data-suffix="+">0</span>
+          <span class="stat-label">Beta Testers</span>
+        </div>
+        <div class="stat">
+          <span class="stat-num" data-count="1800" data-suffix="+">0</span>
+          <span class="stat-label">Trips Monitored</span>
+        </div>
+      </div>
+
+      <div class="iteration-row reveal">
+        <div class="iteration-step"><span>01</span><p>Build a working prototype with real users</p></div>
+        <div class="iteration-step"><span>02</span><p>Run closed beta trips and collect feedback</p></div>
+        <div class="iteration-step"><span>03</span><p>Refine detection, routing and reliability</p></div>
+        <div class="iteration-step"><span>04</span><p>Expand carefully, testing at each step</p></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       COMPANY
+  ========================================================= -->
+  <section id="company" class="company" aria-label="Company">
+    <div class="wrap">
+      <div class="section-head reveal">
+        <span class="eyebrow">Company</span>
+        <h2 class="h2">BUILDING THE SAFETY<br/>LAYER FOR TOMORROW.</h2>
+        <p class="lede">Jāgriti Technologies is building intelligent technology around sensing, context, location and response — to make safety more proactive and more accessible.</p>
+      </div>
+
+      <div class="company-grid reveal">
+        <div class="company-card">
+          <span class="eyebrow">Technology</span>
+          <p>On-device sensing, geospatial intelligence and offline-first systems built for real-world conditions.</p>
+        </div>
+        <div class="company-card">
+          <span class="eyebrow">Mission</span>
+          <p>Make intelligent safety accessible at the scale of India — starting with one person, one moment at a time.</p>
+        </div>
+        <div class="company-card">
+          <span class="eyebrow">Vision</span>
+          <p>A connected safety layer spanning devices, communities and infrastructure — not just a single app.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- =========================================================
+       VISION
+  ========================================================= -->
+  <section id="vision" class="vision dark-zone" aria-label="Vision">
+    <p class="vision-line reveal">WHAT IF<br/>TECHNOLOGY<br/>COULD NOTICE<br/>BEFORE WE<br/>HAD TO ASK?</p>
+    <p class="vision-sub reveal">That is the future Jāgriti Technologies is building toward.</p>
+  </section>
+
+  <!-- =========================================================
+       FINAL CTA
+  ========================================================= -->
+  <section class="final-cta dark-zone" aria-label="Get involved">
+    <div class="final-cta-inner reveal">
+      <h2 class="h2">THE SAFETY<br/>OF EVERY INDIAN.</h2>
+      <p class="final-cta-sub">Start with one person.<br/>Build for everyone.</p>
+      <div class="hero-ctas">
+        <a href="#product" class="btn btn-primary btn-lg">Explore Jāgriti</a>
+        <a href="mailto:nirbhaysupport@gmail.com" class="btn btn-outline btn-lg">Build with us</a>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<!-- =========================================================
+     FOOTER
+========================================================= -->
+<footer class="footer dark-zone">
+  <div class="wrap footer-inner">
+    <div class="footer-brand">
+      <div class="nav-mark footer-mark">
+        <span class="nav-mark-glyph" aria-hidden="true">
+          <svg viewBox="0 0 32 32" width="26" height="26">
+            <circle cx="16" cy="16" r="2.6" fill="currentColor"/>
+            <circle cx="16" cy="16" r="8" fill="none" stroke="currentColor" stroke-width="1.4" opacity="0.55"/>
+            <circle cx="16" cy="16" r="13.5" fill="none" stroke="currentColor" stroke-width="1" opacity="0.25"/>
+          </svg>
+        </span>
+        <span class="nav-mark-text">
+          <span class="nav-mark-title">JĀGRITI</span>
+          <span class="nav-mark-sub">TECHNOLOGIES</span>
+        </span>
+      </div>
+      <p class="footer-tagline">THE SAFETY OF EVERY INDIAN.</p>
+      <a class="footer-email" href="mailto:nirbhaysupport@gmail.com">nirbhaysupport@gmail.com</a>
+    </div>
+
+    <nav class="footer-links" aria-label="Footer">
+      <a href="#signal-layer">Technology</a>
+      <a href="#product">Jāgriti</a>
+      <a href="#network">Network</a>
+      <a href="#vision">Vision</a>
+      <a href="#company">About</a>
+      <a href="mailto:nirbhaysupport@gmail.com">Contact</a>
+      <a href="#privacy">Privacy</a>
+      <a href="#privacy">Terms</a>
+    </nav>
+
+    <div class="footer-social">
+      <a href="https://www.linkedin.com/company/nirbhay-technology-pvt-ltd" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">in</a>
+      <span class="footer-social-disabled" aria-disabled="true" title="Coming soon">ig</span>
+      <span class="footer-social-disabled" aria-disabled="true" title="Coming soon">gh</span>
+    </div>
+  </div>
+  <div class="wrap footer-bottom">
+    <p>© 2026 Jāgriti Technologies. All rights reserved.</p>
+  </div>
+</footer>
+
+<script src="js/main.js" defer></script>
+<script src="js/hero-signal-field.js" defer></script>
+<script src="js/signal-intelligence.js" defer></script>
+<script src="js/moment.js" defer></script>
+<script src="js/motion-sensor.js" defer></script>
+<script src="js/safety-map.js" defer></script>
+<script src="js/network.js" defer></script>
+<script src="js/offline.js" defer></script>
+<script src="js/city.js" defer></script>
+<script src="js/architecture.js" defer></script>
+<script src="js/india-scale.js" defer></script>
+<script src="js/product.js" defer></script>
 </body>
 </html>
