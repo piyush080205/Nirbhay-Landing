@@ -94,8 +94,9 @@
         const el = entry.target;
         const target = parseInt(el.dataset.count, 10);
         const suffix = el.dataset.suffix || '';
+        const prefix = el.dataset.prefix || '';
         if (window.JAGRITI.reducedMotion) {
-          el.textContent = target + suffix;
+          el.textContent = prefix + target.toLocaleString('en-IN') + suffix;
           return;
         }
         const duration = 1400;
@@ -103,7 +104,7 @@
         function tick(now) {
           const p = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = Math.round(eased * target) + suffix;
+          el.textContent = prefix + Math.round(eased * target).toLocaleString('en-IN') + suffix;
           if (p < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);

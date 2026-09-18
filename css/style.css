@@ -1039,6 +1039,7 @@ main > section { padding: 7.5rem 0; }
 .stat { flex: 1; text-align: center; padding: 2.4rem 1.5rem; background: var(--bg-alt); }
 .stat-num { font-family: var(--font-display); font-weight: 800; font-size: clamp(2.2rem, 6vw, 3.4rem); letter-spacing: -0.03em; display: block; }
 .stat-label { font-size: 0.82rem; color: var(--text-soft); font-weight: 500; margin-top: 0.3rem; display: block; }
+.stat-note { font-size: 0.72rem; color: var(--text-faint); margin-top: 0.2rem; display: block; }
 
 .iteration-row { margin-top: 3rem; display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.2rem; }
 .iteration-step { padding: 1.4rem 1.2rem; border-top: 2px solid var(--line); }
@@ -1059,6 +1060,46 @@ main > section { padding: 7.5rem 0; }
 .company-card p { margin-top: 0.5rem; color: var(--text-soft); font-size: 0.92rem; line-height: 1.6; }
 
 @media (max-width: 780px) { .company-grid { grid-template-columns: 1fr; } }
+
+/* =====================================================================
+   FOUNDERS
+===================================================================== */
+.founders { background: var(--bg-alt); }
+.founders-grid {
+  margin-top: 3.5rem;
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 240px));
+  justify-content: center;
+  gap: 2.5rem;
+}
+.founder-card { text-align: center; }
+.founder-card img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: cover;
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  margin-bottom: 1rem;
+}
+.founder-name {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.05rem;
+  letter-spacing: -0.01em;
+}
+.founder-role {
+  display: block;
+  margin-top: 0.2rem;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--blue);
+}
+
+@media (max-width: 560px) {
+  .founders-grid { grid-template-columns: minmax(0, 220px); }
+}
 
 /* =====================================================================
    VISION
