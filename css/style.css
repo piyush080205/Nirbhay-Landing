@@ -1077,7 +1077,8 @@ main > section { padding: 7.5rem 0; }
   width: 100%;
   aspect-ratio: 1 / 1;
   object-fit: cover;
-  border-radius: var(--radius);
+  object-position: center 25%;
+  border-radius: 50%;
   border: 1px solid var(--line);
   margin-bottom: 1rem;
 }
