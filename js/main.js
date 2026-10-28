@@ -92,11 +92,13 @@
         if (!entry.isIntersecting) return;
         cio.unobserve(entry.target);
         const el = entry.target;
-        const target = parseInt(el.dataset.count, 10);
+        const target = parseFloat(el.dataset.count);
+        const decimals = parseInt(el.dataset.decimals || '0', 10);
         const suffix = el.dataset.suffix || '';
         const prefix = el.dataset.prefix || '';
+        const fmt = (n) => n.toLocaleString('en-IN', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
         if (window.JAGRITI.reducedMotion) {
-          el.textContent = prefix + target.toLocaleString('en-IN') + suffix;
+          el.textContent = prefix + fmt(target) + suffix;
           return;
         }
         const duration = 1400;
@@ -104,7 +106,7 @@
         function tick(now) {
           const p = Math.min(1, (now - start) / duration);
           const eased = 1 - Math.pow(1 - p, 3);
-          el.textContent = prefix + Math.round(eased * target).toLocaleString('en-IN') + suffix;
+          el.textContent = prefix + fmt(decimals ? eased * target : Math.round(eased * target)) + suffix;
           if (p < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);
