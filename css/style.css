@@ -1028,8 +1028,7 @@ main > section { padding: 7.5rem 0; }
   letter-spacing: -0.03em;
   font-variant-numeric: tabular-nums;
 }
-.scale-caption { font-size: 0.8rem; color: var(--dark-text-soft); margin-bottom: 2.5rem; }
-.scale-echo { margin-top: 1rem; }
+.scale-echo { margin-top: 2.5rem; }
 
 /* =====================================================================
    TRACTION
